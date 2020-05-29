@@ -24,3 +24,14 @@ from utils import utils
 # Preprocess signal data
 X_train, X_val, X_test = utils.preprocess_signals(X_train, X_val, X_test,'/content/')
 n_classes = y_train.shape[1]
+
+
+#Treinar modelo
+
+
+#Avaliar
+thresholds=None
+tr_df_point = utils.evaluate_experiment( y_train, y_train_pred, thresholds)
+print(tr_df_point)
+val_df_point = utils.evaluate_experiment( y_val, y_val_pred, thresholds)
+print(val_df_point)
