@@ -32,7 +32,7 @@ def evaluate_experiment(y_true, y_pred, thresholds=None):
         results['G_beta_macro'] = challenge_scores['G_beta_macro']
 
     # label based metric
-    results['macro_auc'] = roc_auc_score(y_true, y_pred, average='macro')
+    results['macro_auc'] = roc_auc_score(y_true, y_pred, average='macro', multi_class='ovo')
     # sample based metric
     results['Fmax'] = F_max(y_true, y_pred)
     
@@ -131,7 +131,7 @@ def find_optimal_cutoff_threshold(target, predicted):
     return optimal_threshold
 
 def find_optimal_cutoff_thresholds(y_true, y_pred):
-	return [find_optimal_cutoff_threshold(y_true[:,i], y_pred[:,i]) for i in range(y_true.shape[1])]
+    return [find_optimal_cutoff_threshold(y_true[:,i], y_pred[:,i]) for i in range(y_true.shape[1])]
 
 def find_optimal_cutoff_threshold_for_Gbeta(target, predicted, n_thresholds=100):
     thresholds = np.linspace(0.00,1,n_thresholds)
@@ -144,18 +144,18 @@ def find_optimal_cutoff_thresholds_for_Gbeta(y_true, y_pred):
     return [find_optimal_cutoff_threshold_for_Gbeta(y_true[:,k][:,np.newaxis], y_pred[:,k][:,np.newaxis]) for k in tqdm(range(y_true.shape[1]))]
 
 def apply_thresholds(preds, thresholds):
-	"""
-		apply class-wise thresholds to prediction score in order to get binary format.
-		BUT: if no score is above threshold, pick maximum. This is needed due to metric issues.
-	"""
-	tmp = []
-	for p in preds:
-		tmp_p = (p > thresholds).astype(int)
-		if np.sum(tmp_p) == 0:
-			tmp_p[np.argmax(p)] = 1
-		tmp.append(tmp_p)
-	tmp = np.array(tmp)
-	return tmp
+    """
+        apply class-wise thresholds to prediction score in order to get binary format.
+        BUT: if no score is above threshold, pick maximum. This is needed due to metric issues.
+    """
+    tmp = []
+    for p in preds:
+        tmp_p = (p > thresholds).astype(int)
+        if np.sum(tmp_p) == 0:
+            tmp_p[np.argmax(p)] = 1
+        tmp.append(tmp_p)
+    tmp = np.array(tmp)
+    return tmp
 
 # DATA PROCESSING STUFF
 
@@ -288,6 +288,9 @@ def compute_label_aggregations(df, folder, ctype):
 
     return df
 
+def dummies_to_categorical(x):
+    return pd.DataFrame(x).idxmax(axis=1)
+
 def select_data(XX,YY, ctype, min_samples, outputfolder):
     # convert multilabel to multi-hot
     mlb = MultiLabelBinarizer()
@@ -358,6 +361,8 @@ def select_data(XX,YY, ctype, min_samples, outputfolder):
     return X, Y, y, mlb
 
 def preprocess_signals(X_train, X_validation, X_test, outputfolder):
+    if not os.path.exists(outputfolder):
+        os.mkdirs(outputfolder)
     # Standardize data such that mean 0 and variance 1
     ss = StandardScaler()
     ss.fit(np.vstack(X_train).flatten()[:,np.newaxis].astype(float))
