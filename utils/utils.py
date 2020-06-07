@@ -361,8 +361,7 @@ def select_data(XX,YY, ctype, min_samples, outputfolder):
     return X, Y, y, mlb
 
 def preprocess_signals(X_train, X_validation, X_test, outputfolder):
-    if not os.path.exists(outputfolder):
-        os.mkdirs(outputfolder)
+    if not os.path.exists(outputfolder): os.mkdir(outputfolder)
     # Standardize data such that mean 0 and variance 1
     ss = StandardScaler()
     ss.fit(np.vstack(X_train).flatten()[:,np.newaxis].astype(float))
