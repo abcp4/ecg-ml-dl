@@ -1,0 +1,7 @@
+docker run --name=time_series \
+-it -d \
+-w /home/(whoami) \
+-v ~/:/home/(whoami)/ \
+-p 3457:3457 \
+--ipc=host \
+--gpus all pytorch/pytorch:latest
