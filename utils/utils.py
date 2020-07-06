@@ -22,7 +22,6 @@ def generate_results(idxs, y_true, y_pred, thresholds):
 
 def evaluate_experiment(y_true, y_pred, thresholds=None):
     results = {}
-
     if not thresholds is None:
         # binary predictions
         y_pred_binary = apply_thresholds(y_pred, thresholds)
@@ -92,10 +91,9 @@ def eval_prrc_parallel(y_true, y_pred, thresholds):
     # expand analysis to number of thresholds
     y_pred_bin = np.repeat(y_pred[None, :, :], len(thresholds), axis=0)>=thresholds[:,None,None]
     y_true_bin = np.repeat(y_true[None, :, :], len(thresholds), axis=0)
-   
+
     # compute true positives
     TP = np.sum(np.logical_and(y_true == True , y_pred_bin == True), axis=2)
-
     # compute macro average precision handling all warnings
     with np.errstate(divide='ignore', invalid='ignore'):
         den = np.sum(y_pred_bin, axis=2)
